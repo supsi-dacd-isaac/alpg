@@ -24,7 +24,8 @@ import profilegentools
 import config
 import persons
 import devices
-		
+import sys
+
 class Household:
 	#Note to self, must simulate whole household at once!
 	
@@ -32,8 +33,9 @@ class Household:
 	#http://www.nibud.nl/uitgaven/huishouden/gas-elektriciteit-en-water.html
 	#http://www.energie-nederland.nl/wp-content/uploads/2013/04/EnergieTrends2014.pdf
 	
-	def __init__(self):
+	def __init__(self, type=None):
 		self.generate()
+		self.type = type
 		
 	def generate(self):
 		#The Yearly consumption is the normal consumption of domestic appliances as found for years in households. This excludes: 
@@ -339,7 +341,8 @@ class Household:
 		
 
 class HouseholdSingleWorker(Household):
-	def __init__(self):
+	def __init__(self, type):
+		super().__init__(type=type)
 		self.generate()
 		self.ConsumptionYearly		= profilegentools.gaussMinMax(2010,400)*config.consumptionFactor #kWh http://www.nibud.nl/uitgaven/huishouden/gas-elektriciteit-en-water.html
 		
@@ -375,7 +378,8 @@ class HouseholdSingleWorker(Household):
 		
 
 class HouseholdDualWorker(Household):
-	def __init__(self, parttime):
+	def __init__(self, parttime, type):
+		super().__init__(type=type)
 		self.generate()
 		self.ConsumptionYearly		= profilegentools.gaussMinMax(3360,700)*config.consumptionFactor #kWh http://www.nibud.nl/uitgaven/huishouden/gas-elektriciteit-en-water.html
 		
@@ -404,19 +408,23 @@ class HouseholdDualWorker(Household):
 			self.generateDishwashdays(3)
 	
 	
-class HouseholdFamilyDualWorker(Household):		
-	def __init__(self, parttime):
-		self.generate()
-		numKids = round(max(min(4, random.gauss(1.7, 0.4)), 1))	# http://www.cbs.nl/nl-NL/menu/themas/bevolking/faq/specifiek/faq-hoeveel-kinderen.htm
+class HouseholdFamilyDualWorker(Household):
+	def __init__(self, employment_rates, kids, type):
+		super().__init__(type=type)
+		if kids < 1:
+			kids = 1
+		numKids = kids
 
-		self.ConsumptionYearly		= profilegentools.gaussMinMax(2010+(700*numKids),500+(numKids*100))*config.consumptionFactor #kWh http://www.nibud.nl/uitgaven/huishouden/gas-elektriciteit-en-water.html
-		
-		ageParents = random.randint(40,55)
-		self.Persons = [ persons.PersonWorker(ageParents)]
+		self.generate()
+		self.ConsumptionYearly = profilegentools.gaussMinMax(mu=2010+(700*numKids),
+															 deviation=500+(numKids*100))*config.consumptionFactor
+		ageParents = random.randint(40, 55)
+		self.Persons = [persons.PersonWorker(ageParents)]
 		
 		self.Persons.append(copy.deepcopy(self.Persons[0]))  #Make a copy, we expect a household to be rather synchronized!
-		if parttime == True:
-			self.Persons[1].generateWorkdays(random.randint(2,3))
+		for i in range(0, len(employment_rates)):
+			wd = int(5 * employment_rates[i])
+			self.Persons[i].generateWorkdays(wd)
 		
 		#To make life easy, only one persons.Person will use the electric vehicle, so only the main persons.Person will receive a driving distance
 		self.Persons[0].setDistanceToWork(round(max(0, random.gauss(config.commuteDistanceMean, config.commuteDistanceSigma))))	
@@ -438,19 +446,21 @@ class HouseholdFamilyDualWorker(Household):
 		
 	
 class HouseholdFamilySingleWorker(Household):		
-	def __init__(self, parttime):
+	def __init__(self, employment_rate, kids, type):
+		super().__init__(type=type)
+		if kids < 1:
+			kids = 1
+		numKids = kids
 		self.generate()
-		numKids = round(max(min(4, random.gauss(1.7, 0.4)), 1))	# http://www.cbs.nl/nl-NL/menu/themas/bevolking/faq/specifiek/faq-hoeveel-kinderen.htm
-	
+
 		self.ConsumptionYearly		= profilegentools.gaussMinMax(3360+(700*numKids),500+(numKids*100))*config.consumptionFactor #kWh http://www.nibud.nl/uitgaven/huishouden/gas-elektriciteit-en-water.html
 		
 		ageParents = random.randint(40,55)
 		self.Persons = [ persons.PersonWorker(ageParents)]
 		
 		self.Persons.append(copy.deepcopy(self.Persons[0]))  #Make a copy, we expect a household to be rather synchronized!
-		if parttime == True:
-			self.Persons[1].generateWorkdays(random.randint(2,3))
-		
+		self.Persons[1].generateWorkdays(int(5 * employment_rate))
+
 		#To make life easy, only one persons.Person will use the electric vehicle, so only the main persons.Person will receive a driving distance
 		self.Persons[0].setDistanceToWork(round(max(0, random.gauss(config.commuteDistanceMean, config.commuteDistanceSigma))))	
 				
@@ -471,10 +481,12 @@ class HouseholdFamilySingleWorker(Household):
 		
 	
 class HouseholdFamilySingleParent(Household):
-	def __init__(self, parttime):
+	def __init__(self, parttime, numKids, type):
+		super().__init__(type=type)
+		if numKids < 1:
+			numKids = 1
 		self.generate()
-		numKids = round(max(min(4, random.gauss(1.7, 0.4)), 1))	# http://www.cbs.nl/nl-NL/menu/themas/bevolking/faq/specifiek/faq-hoeveel-kinderen.htm
-	
+
 		self.ConsumptionYearly		= profilegentools.gaussMinMax(2500+(700*numKids),500+(numKids*100))*config.consumptionFactor #kWh http://www.nibud.nl/uitgaven/huishouden/gas-elektriciteit-en-water.html
 		
 		ageParents = random.randint(40,55)
@@ -499,7 +511,8 @@ class HouseholdFamilySingleParent(Household):
 			
 	
 class HouseholdDualRetired(Household):	
-	def __init__(self):
+	def __init__(self, type):
+		super().__init__(type=type)
 		self.generate()
 		self.ConsumptionYearly		= profilegentools.gaussMinMax(3360,600)*config.consumptionFactor #kWh http://www.nibud.nl/uitgaven/huishouden/gas-elektriciteit-en-water.html
 		
@@ -526,9 +539,11 @@ class HouseholdDualRetired(Household):
 
 	
 class HouseholdSingleRetired(Household):	
-	def __init__(self):
+	def __init__(self, type):
+		super().__init__(type=type)
 		self.generate()
-		self.ConsumptionYearly		= profilegentools.gaussMinMax(2010,400)*config.consumptionFactor #kWh http://www.nibud.nl/uitgaven/huishouden/gas-elektriciteit-en-water.html
+		self.ConsumptionYearly = profilegentools.gaussMinMax(2010,400)*config.consumptionFactor
+		# kWh http://www.nibud.nl/uitgaven/huishouden/gas-elektriciteit-en-water.html
 		
 		age = random.triangular(65, 85, 70)
 		self.Persons = [ persons.PersonRetired(age)]
