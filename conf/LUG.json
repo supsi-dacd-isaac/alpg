@@ -1,0 +1,105 @@
+{
+  "output_folder" : "out",
+  "weather_section": {
+                        "irradiation_file": "irradiation/LUG_2015_1h.csv",
+                        "timebase_dataset": "3600"
+                     },
+  "num_days": "365",
+  "start_day": "0",
+  "location_section": {
+                        "name": "Lugano",
+                        "country": "CH",
+                        "latitude": "46",
+                        "longitude": "8.9",
+                        "altitude": "343",
+                        "time_zone": "Europe/Zurich",
+                        "solar_depression": "civil"
+                      },
+  "devices_section": {
+                        "consumption_factor": "1.0",
+                        "EV": {
+                                "penetration": "13",
+                                "capacity": "42000",
+                                "power": "7400",
+                                "distance_mean": 25,
+                                "distance_sigma": 10
+                                      },
+                        "PHEV": {
+                                  "penetration": "32",
+                                  "capacity": "12000",
+                                  "power": "3700",
+                                  "distance_mean": 25,
+                                  "distance_sigma": 10
+                                },
+                        "PV": {
+                                "penetration": "100",
+                                "production_per_year": "220",
+                                "tilt_angle_mean": "35",
+                                "tilt_angle_sigma": "10",
+                                "south_azimuth_sigma": "90",
+                                "efficiency_min": "15",
+                                "efficiency_max": "20"
+                              },
+                        "battery": {
+                                      "penetration": "10",
+                                      "capacity_large": "12000",
+                                      "capacity_medium": "5000",
+                                      "capacity_small": "2000",
+                                      "power_large": "3700",
+                                      "power_medium": "3700",
+                                      "power_small": "3700"
+                                    },
+                        "kitchen": {
+                                      "induction_cooking_penetration": "25",
+                                      "power_consumption_oven": "2000",
+                                      "power_consumption_microwave": "800",
+                                      "power_consumption_stove_ventilation": "120",
+                                      "power_consumption_induction_stove": "2200",
+                                      "power_consumption_fridge_big_min": "80",
+                                      "power_consumption_fridge_big_max": "120",
+                                      "power_consumption_fridge_small_min": "50",
+                                      "power_consumption_fridge_small_max": "80",
+                                      "power_consumption_kettle": "2000"
+                                    },
+                        "white_goods":  {
+                                          "power_consumption_iron": "2000",
+                                          "power_consumption_vacuum_cleaner": "1500"
+                                        },
+                        "ventilation":  {
+                                          "power_consumption": "50"
+                                        }
+                      },
+  "households_section": {
+                          "randomization":  {
+                                              "perc_family_outing_chance_min": "10",
+                                              "perc_family_outing_chance_max": "20",
+                                              "perc_person_weekday_activity_chance_min": "20",
+                                              "perc_person_weekday_activity_chance_max": "30",
+                                              "perc_person_weekend_activity_chance_min": "20",
+                                              "perc_person_weekend_activity_chance_max": "30"
+                                            },
+                          "single_worker":  {
+                                              "number": "0"
+                                            },
+                          "single_retired":  {
+                                                "number": "0"
+                                              },
+                          "dual_worker":  {
+                                            "number": "0",
+                                            "parttime": "false"
+                                          },
+                          "dual_retired":  {
+                                              "number": "0"
+                                           },
+                          "family_single_worker":  {
+                                                      "number": "0",
+                                                      "employment_rate": "1.0",
+                                                      "kids": "1"
+                                                   },
+                          "family_dual_worker":    {
+                                                      "number": "1",
+                                                      "employment_rates": ["1.0", "0.5"],
+                                                      "kids": "2"
+                                                   }
+                        }
+}
