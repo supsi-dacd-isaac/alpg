@@ -15,74 +15,150 @@
 
     #You should have received a copy of the GNU General Public License
     #along with this program.  If not, see <http://www.gnu.org/licenses/>.
-    
 
+# --------------------------------------------------------------------------- #
+# Importing section
+# --------------------------------------------------------------------------- #
 
-import random, csv, io, os, sys
+# Standard libraries
+import os
+import sys
+import time
+import argparse
+import json
+import logging
+from shutil import copyfile
 
+# Profilegenerator libraries
 import profilegentools
 
-import config
+# --------------------------------------------- ------------------------------ #
+# Main
+# --------------------------------------------------------------------------- #
+if __name__ == "__main__":
 
-print("Profilegenerator 1.0\n")
-print("Copyright (C) 2016 Gerwin Hoogsteen")
-print("This program comes with ABSOLUTELY NO WARRANTY.")
-print("This is free software, and you are welcome to redistribute it under certain conditions.")
-print("See the acompanying license for more information.\n")
+    print("Profilegenerator 1.0\n")
+    print("Copyright (C) 2016 Gerwin Hoogsteen")
+    print("This program comes with ABSOLUTELY NO WARRANTY.")
+    print("This is free software, and you are welcome to redistribute it under certain conditions.")
+    print("See the accompanying license for more information.\n")
 
-print("Writing output file to: "+config.folder)
-print("The current config will create and simulate "+str(len(config.householdList))+" households\n")
+    # --------------------------------------------------------------------------- #
+    # Initial configuration
+    # --------------------------------------------------------------------------- #
+    arg_parser = argparse.ArgumentParser()
+    arg_parser.add_argument('-c', help='configuration file')
+    arg_parser.add_argument('-l', help='log file')
 
-#import neighbourhood
-import neighbourhood
-neighbourhood.neighbourhood()
+    args = arg_parser.parse_args()
+    file_config = json.loads(open(args.c).read())
+    copyfile(args.c, 'conf/tmp.json')
+    import config
 
-configFile = []
+    # --------------------------------------------------------------------------- #
+    # Logging object
+    # --------------------------------------------------------------------------- #
+    if not args.l:
+        log_file = None
+    else:
+        log_file = args.l
 
-#more preamble
-if not os.path.exists(config.folder):
-    os.makedirs(config.folder)
+    logger = logging.getLogger()
+    logging.basicConfig(format='%(asctime)-15s::%(levelname)s::%(funcName)s::%(message)s', level=logging.INFO,
+                        filename=log_file)
 
+    # --------------------------------------------------------------------------- #
+    # Preliminary definitions (neighbourhood, addhous, etc.)
+    # --------------------------------------------------------------------------- #
+    logger.info('Starting program')
 
+    import neighbourhood
+    neighbourhood.neighbourhood(logger=logger)
 
-#addhouse function
-configFile.append('control = False')
-configFile.append('def addHouse(node, coordx, coordy, phase, houseNum):')
+    configFile = []
 
-hnum = 0
+    # more preamble
+    if not os.path.exists(config.folder):
+        os.makedirs(config.folder)
 
-householdList = config.householdList
-numOfHouseholds = len(householdList)
+    # Addhouse function
+    configFile.append('control = False')
+    configFile.append('def addHouse(node, coordx, coordy, phase, houseNum):')
 
+    if not os.path.exists(config.folder):
+        os.makedirs(config.folder)
 
+    # --------------------------------------------------------------------------- #
+    # Profile creation
+    # --------------------------------------------------------------------------- #
+    logger.info('Writing output file in %s' % config.folder)
+    logger.info('The current config will create and simulate %i households' % len(config.householdList))
 
-if not os.path.exists(config.folder):
-	os.makedirs(config.folder)
-			
+    logger.info('HOUSEHOLD TYPES:')
+    logger.info('num_single_worker = %i' % config.num_singles_worker)
+    logger.info('num_single_retired = %i' % config.num_singles_retired)
+    logger.info('num_duals_worker = %i' % config.num_duals_worker)
+    logger.info('num_duals_retired = %i' % config.num_duals_retired)
+    logger.info('num_families_single_worker = %i' % config.num_families_single_worker)
+    logger.info('num_families_dual_workers = %i' % config.num_families_dual_workers)
 
-while len(householdList) > 0:
-	#Apparently, the seed is brokin in the while loop...:
-	#random.seed(config.seed+hnum)
-	
-	print("Household "+str(hnum+1)+" of "+str(numOfHouseholds))
-	householdList[0].simulate()
-	
-	#Warning: On my PC the random number is still the same at this point, but after calling scaleProfile() it isn't!!!
-	householdList[0].scaleProfile()
-	householdList[0].reactivePowerProfile()
+    hnum = 0
+    for household in config.householdList:
+        # Apparently, the seed is brokin in the while loop...:
+        # random.seed(config.seed+hnum)
 
-	
-	if config.intervalLength != 1:
-		householdList[0].Consumption['Total'] = profilegentools.resample(householdList[0].Consumption['Total'], config.intervalLength)
-		householdList[0].ReactiveConsumption['Total'] = profilegentools.resample(householdList[0].ReactiveConsumption['Total'], config.intervalLength)
+        # --------------------------------------------------------------------------- #
+        # Simulation
+        # --------------------------------------------------------------------------- #
+        logger.info('Started simulation for household %i of %i, type=\'%s\'' % (hnum+1, len(config.householdList),
+                                                                                household.type))
+        t = time.time()
+        household.simulate()
+        elapsed_time = time.time() - t
+        logger.info('Ended simulation for household %i of %i: elapsed time=%.2f seconds' % (hnum+1,
+                                                                                            len(config.householdList),
+                                                                                            elapsed_time))
+        # Warning: On my PC the random number is still the same at this point,
+        # but after calling scaleProfile() it isn't!!!
 
-	config.writer.writeHousehold(householdList[0], hnum)
-	config.writer.writeNeighbourhood(hnum)
-	
-	householdList[0].Consumption = None
-	householdList[0].Occupancy = None
-	for p in householdList[0].Persons:
-		del(p)
-	del(householdList[0])
-	
-	hnum = hnum + 1
+        logger.info('Started scaling for household %i of %i, type=\'%s\'' % (hnum+1, len(config.householdList),
+                                                                             household.type))
+        # --------------------------------------------------------------------------- #
+        # Profiles scaling
+        # --------------------------------------------------------------------------- #
+        t = time.time()
+        household.scaleProfile()
+        household.reactivePowerProfile()
+        elapsed_time = time.time() - t
+        logger.info('Ended scaling for household %i of %i: elapsed time=%.2f seconds' % (hnum+1,
+                                                                                         len(config.householdList),
+                                                                                         elapsed_time))
+        # --------------------------------------------------------------------------- #
+        # Dataset resampling
+        # --------------------------------------------------------------------------- #
+        if config.intervalLength != 1:
+            logger.info('Started resampling for household %i of %i, type=\'%s\'' % (hnum + 1, len(config.householdList),
+                                                                                    household.type))
+            t = time.time()
+            household.Consumption['Total'] = profilegentools.resample(household.Consumption['Total'],
+                                                                      config.intervalLength)
+            household.ReactiveConsumption['Total'] = profilegentools.resample(household.ReactiveConsumption['Total'],
+                                                                              config.intervalLength)
+            elapsed_time = time.time() - t
+            logger.info('Ended resampling for household %i of %i: elapsed time=%.2f seconds' % (hnum+1,
+                                                                                                len(config.householdList),
+                                                                                                elapsed_time))
+        # --------------------------------------------------------------------------- #
+        # Output files writing
+        # --------------------------------------------------------------------------- #
+        logger.info('Started writing for household %i of %i, type=\'%s\'' % (hnum+1, len(config.householdList),
+                                                                             household.type))
+        t = time.time()
+        config.writer.writeHousehold(household, hnum)
+        config.writer.writeNeighbourhood(hnum)
+        elapsed_time = time.time() - t
+        logger.info('Ended writing for household %i of %i: elapsed time=%.2f seconds' % (hnum+1,
+                                                                                         len(config.householdList),
+                                                                                         elapsed_time))
+        hnum += 1
+    logger.info('Ending program')
