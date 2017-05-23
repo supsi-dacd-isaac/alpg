@@ -24,10 +24,10 @@ import profilegentools
 import config
 
 class Device:
-	def __init__(self, consumption = 0):
+	def __init__(self, consumption=0):
 		self.generate(consumption)
 		
-	def generate(self, consumption = 0):
+	def generate(self, consumption=0):
 		self.State = 0
 		self.Consumption = consumption
 		
@@ -498,7 +498,7 @@ class DeviceDishwasher(TimeShiftableDevice):
 		self.name = "Dishwasher"
 			
 	def writeDevice(self, hnum):
-		config.writer.writeDeviceTimeshiftable(self, hnum)	
+		config.writer.writeDeviceTimeshiftable(self, hnum=hnum)
 			
 class DeviceElectricalVehicle(BufferTimeshiftableDevice):
 	def simulate(self, day, person, eventStart, eventDuration):
@@ -551,6 +551,6 @@ class DeviceElectricalVehicle(BufferTimeshiftableDevice):
 				self.EndTimes.append(1440*(day+1) + person.WorkdayLeave_Avg - 30)
 				
 	def writeDevice(self, hnum):
-		config.writer.writeDeviceBufferTimeshiftable(self, hnum)	
+		config.writer.writeDeviceBufferTimeshiftable(self, hnum=hnum)
 		
 

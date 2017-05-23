@@ -70,7 +70,7 @@ class Person:
 		
 	def generateActivity(self):
 		self.WorkdaySportday = 1 + random.randint(1,5)
-		self.WeekendSportday = 6 + randon.randint(0,1)
+		self.WeekendSportday = 6 + random.randint(0,1)
 
 	def generateWorkdays(self, days):
 		self.Workdays = random.sample(range(1, 6), days)
