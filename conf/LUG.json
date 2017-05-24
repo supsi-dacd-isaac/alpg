@@ -1,5 +1,5 @@
 {
-  "output_folder" : "out",
+  "root_output_folder" : "out_raw",
   "weather_section": {
                         "irradiation_file": "irradiation/LUG_2015_1h.csv",
                         "timebase_dataset": "3600"
@@ -32,7 +32,7 @@
                                   "distance_sigma": 10
                                 },
                         "PV": {
-                                "penetration": "100",
+                                "penetration": "50",
                                 "production_per_year": "220",
                                 "tilt_angle_mean": "35",
                                 "tilt_angle_sigma": "10",
@@ -98,7 +98,7 @@
                                                    },
                           "family_dual_worker":    {
                                                       "number": "1",
-                                                      "employment_rates": ["1.0", "0.5"],
+                                                      "employment_rates": ["1.0", "1.0"],
                                                       "kids": "2"
                                                    }
                         }

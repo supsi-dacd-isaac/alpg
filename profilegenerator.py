@@ -54,6 +54,9 @@ if __name__ == "__main__":
     file_config = json.loads(open(args.c).read())
     copyfile(args.c, 'conf/tmp.json')
     import config
+    arr_path_file = args.c.split('/')
+    (name_file, ext) = arr_path_file[len(arr_path_file)-1].split('.')
+    config.folder = '%s/%s' % (config.folder, name_file)
 
     # --------------------------------------------------------------------------- #
     # Logging object
@@ -87,6 +90,7 @@ if __name__ == "__main__":
 
     if not os.path.exists(config.folder):
         os.makedirs(config.folder)
+    copyfile(args.c, '%s/settings.json' % config.folder)
 
     # --------------------------------------------------------------------------- #
     # Profile creation
@@ -103,6 +107,9 @@ if __name__ == "__main__":
     logger.info('num_families_dual_workers = %i' % config.num_families_dual_workers)
 
     hnum = 0
+    fw = open('%s/HH_settings.txt' % config.folder, 'w')
+    fw.write('HH,Type\n')
+
     for household in config.householdList:
         # Apparently, the seed is brokin in the while loop...:
         # random.seed(config.seed+hnum)
@@ -112,6 +119,8 @@ if __name__ == "__main__":
         # --------------------------------------------------------------------------- #
         logger.info('Started simulation for household %i of %i, type=\'%s\'' % (hnum+1, len(config.householdList),
                                                                                 household.type))
+        fw.write('HH%02i,%s\n' % (hnum+1, household.type))
+
         t = time.time()
         household.simulate()
         elapsed_time = time.time() - t
@@ -134,7 +143,7 @@ if __name__ == "__main__":
                                                                                          len(config.householdList),
                                                                                          elapsed_time))
         # --------------------------------------------------------------------------- #
-        # Dataset resampling
+        # Dataset resampling (STIIL TO TEST!
         # --------------------------------------------------------------------------- #
         if config.intervalLength != 1:
             logger.info('Started resampling for household %i of %i, type=\'%s\'' % (hnum + 1, len(config.householdList),
@@ -161,4 +170,5 @@ if __name__ == "__main__":
                                                                                          len(config.householdList),
                                                                                          elapsed_time))
         hnum += 1
+    fw.close()
     logger.info('Ending program')

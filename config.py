@@ -37,7 +37,7 @@ random.seed(seed)
 
 # In and out files:
 # Folder to write the output to
-folder = file_config['output_folder']
+folder = file_config['root_output_folder']
 
 # Input files:
 weather_irradiation = file_config['weather_section']['irradiation_file']
@@ -165,7 +165,7 @@ num_families_dual_workers = 0
 for i in range(0, int(file_config['households_section']['family_dual_worker']['number'])):
 	ers = np.array(file_config['households_section']['family_dual_worker']['employment_rates'], dtype='|S4')
 	kids = int(file_config['households_section']['family_dual_worker']['kids'])
-	hh = households.HouseholdFamilyDualWorker(employment_rates=ers.astype(np.float), kids=kids, type='family_dual_worker')
+	hh = households.HouseholdFamilyDualWorker(employment_rates=ers.astype(np.float), kids=kids, type='family_dual_workers')
 	householdList.append(hh)
 	del hh
 	num_families_dual_workers += 1
@@ -175,7 +175,7 @@ numHouses = len(householdList)
 # DO NOT EDIT BEYOND THIS LINE:
 # WARNING: The following option is untested:
 # Output timebase in seconds
-timeBase = 60 							# must be a multiple of 60
+timeBase = 60  # must be a multiple of 60
 
 # Do no touch this:
 intervalLength = int(timeBase/60)		# set the rate in minutes, normal in minute intervals
