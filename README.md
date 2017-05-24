@@ -1,4 +1,4 @@
-Artifical load profile generator
+Artificial load profile generator
 ==============
 
 This tool is an Artifical Load Profile Generator (ALPG) with the purpose to stimulate research and benchmarking of different Demand Side Management (DSM) approaches. The main contribution of this generator is the addition of flexibility information of flexible devices. This input, next to static profiles, can be used to evaluate and benchmark the performance of DSM approches. 
@@ -12,7 +12,20 @@ For more information, please see http://utwente.nl/energy
 Running
 --------------
 
-Running the ALPG is done by executing "profilegenerator.py -c /path/conf_file.json (ex: -c conf/LUG.json)"
+**Profile generation**
+<pre>
+python3 profilegenerator.py -c /path/conf_file.json
+
+Example: python3 profilegenerator.py -c conf/LUG.json
+</pre>
+
+**Data resampling**
+
+<pre>
+python3 graph_creator.py -i folder_with_csv_created_by_profilegenerator -o output_folder -r time_resolution
+
+Example: python3 graph_creator.py -i out_raw -o out -r 15min
+</pre>
 
 The tool is written in the Python3 language and should work on all major platforms. Furthermore, the tool depends on the Astral package, which can be installed using pip:
 https://pypi.python.org/pypi/astral
