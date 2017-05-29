@@ -22,9 +22,9 @@ Example: python3 profilegenerator.py -c conf/LUG.json
 **Data resampling**
 
 <pre>
-python3 graph_creator.py -i folder_with_csv_created_by_profilegenerator -o output_folder -r time_resolution
+python3 data_resampler.py -i folder_with_csv_created_by_profilegenerator -o output_folder -r time_resolution
 
-Example: python3 graph_creator.py -i out_raw -o out -r 15min
+Example: python3 data_resampler.py -i out_raw -o out -r 15min
 </pre>
 
 The tool is written in the Python3 language and should work on all major platforms. Furthermore, the tool depends on the Astral package, which can be installed using pip:
