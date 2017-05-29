@@ -22,14 +22,10 @@
 
 # Standard libraries
 import glob
-import sys
 import os
-import time
 import argparse
-import json
 import logging
 import pandas as pd
-import matplotlib.pyplot as plt
 
 from shutil import copyfile
 
@@ -96,15 +92,6 @@ if __name__ == "__main__":
                 df.index.name = 't'
                 df = df.resample(args.r).mean()
 
-                # Plot data (NOT USED)
-                # logger.info('Create graph for %s' % desc_string)
-                # ax = df.plot()
-                # legend_data.append(desc_string)
-                # plt.ylabel('Power [W]')
-                # plt.grid()
-                # plt.title('%s - %s' % (subfolder, desc_string))
-                # legend = ax.legend(cols)
-
                 # Write data on output files
                 output_folder = '%s/%s' % (args.o, subfolder)
                 if not os.path.exists(output_folder):
@@ -117,7 +104,6 @@ if __name__ == "__main__":
                 # Copy info files in output folder
                 copyfile('%s/%s/settings.json' % (args.i, subfolder), '%s/settings.json' % output_folder)
                 copyfile('%s/%s/HH_settings.txt' % (args.i, subfolder), '%s/HH_settings.txt' % output_folder)
-    plt.show()
 
     logger.info('Ending program')
 
