@@ -27,6 +27,15 @@ python3 data_resampler.py -i folder_with_csv_created_by_profilegenerator -o outp
 Example: python3 data_resampler.py -i out_raw -o out -r 15min
 </pre>
 
+**Meteonorm meteo files conversion into ALPG format**
+
+<pre>
+python3 formatter_meteonorm_to_alpg.py -i input_file_meteonorm_format -o output_file_alpg_format
+
+Example: python3 formatter_meteonorm_to_alpg.py -i meteonorm/meteo_example.csv -o meteonorm/out.csv
+</pre>
+
+
 The tool is written in the Python3 language and should work on all major platforms. Furthermore, the tool depends on the Astral package, which can be installed using pip:
 https://pypi.python.org/pypi/astral
 
