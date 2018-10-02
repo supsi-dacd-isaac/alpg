@@ -128,47 +128,53 @@ householdList = []
 
 # Singles
 num_singles_worker = 0
-for i in range(0, int(file_config['households_section']['single_worker']['number'])):
-	householdList.append(households.HouseholdSingleWorker(type='single_worker'))
-	num_singles_worker += 1
+for h in file_config['households_section']['single_worker']:
+	for i in range(0, int(h['number'])):
+		householdList.append(households.HouseholdSingleWorker(type='single_worker'))
+		num_singles_worker += 1
 
 num_singles_retired = 0
-for i in range(0, int(file_config['households_section']['single_retired']['number'])):
-	householdList.append(households.HouseholdSingleRetired(type='single_retired'))
-	num_singles_retired += 1
-	
+for h in file_config['households_section']['single_retired']:
+	for i in range(0, int(h['number'])):
+		householdList.append(households.HouseholdSingleRetired(type='single_retired'))
+		num_singles_retired += 1
+
 # Couples
 num_duals_worker = 0
-for i in range(0, int(file_config['households_section']['dual_worker']['number'])):
-	if file_config['households_section']['dual_worker']['parttime'] == 'true':
-		householdList.append(households.HouseholdDualWorker(True, type='dual_worker'))
-	else:
-		householdList.append(households.HouseholdDualWorker(False, type='dual_worker'))
+for h in file_config['households_section']['dual_worker']:
+	for i in range(0, int(h['number'])):
+		if h['parttime'] == 'true':
+			householdList.append(households.HouseholdDualWorker(True, type='dual_worker'))
+		else:
+			householdList.append(households.HouseholdDualWorker(False, type='dual_worker'))
 	num_duals_worker += 1
 
 num_duals_retired = 0
-for i in range(0, int(file_config['households_section']['dual_retired']['number'])):
-	householdList.append(households.HouseholdDualRetired(type='dual_retired'))
-	num_duals_retired += 1
+for h in file_config['households_section']['dual_retired']:
+	for i in range(0, int(h['number'])):
+		householdList.append(households.HouseholdDualRetired(type='dual_retired'))
+		num_duals_retired += 1
 
 # Families
 num_families_single_worker = 0
-for i in range(0, int(file_config['households_section']['family_single_worker']['number'])):
-	er = float(file_config['households_section']['family_single_worker']['employment_rate'])
-	kids = int(file_config['households_section']['family_single_worker']['kids'])
-	hh = households.HouseholdFamilySingleWorker(employment_rate=er, kids=kids, type='family_single_worker')
-	householdList.append(hh)
-	del hh
-	num_families_single_worker += 1
+for h in file_config['households_section']['family_single_worker']:
+	for i in range(0, int(h['number'])):
+		er = float(h['employment_rate'])
+		kids = int(h['kids'])
+		hh = households.HouseholdFamilySingleWorker(employment_rate=er, kids=kids, type='family_single_worker')
+		householdList.append(hh)
+		del hh
+		num_families_single_worker += 1
 
 num_families_dual_workers = 0
-for i in range(0, int(file_config['households_section']['family_dual_worker']['number'])):
-	ers = np.array(file_config['households_section']['family_dual_worker']['employment_rates'], dtype='|S4')
-	kids = int(file_config['households_section']['family_dual_worker']['kids'])
-	hh = households.HouseholdFamilyDualWorker(employment_rates=ers.astype(np.float), kids=kids, type='family_dual_workers')
-	householdList.append(hh)
-	del hh
-	num_families_dual_workers += 1
+for h in file_config['households_section']['family_dual_worker']:
+	for i in range(0, int(h['number'])):
+		ers = np.array(h['employment_rates'], dtype='|S4')
+		kids = int(h['kids'])
+		hh = households.HouseholdFamilyDualWorker(employment_rates=ers.astype(np.float), kids=kids, type='family_dual_workers')
+		householdList.append(hh)
+		del hh
+		num_families_dual_workers += 1
 
 numHouses = len(householdList)
 
